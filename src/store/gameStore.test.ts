@@ -12,6 +12,10 @@
  *
  * These tests exercise the pure functions in `lib/gameLogic` (the canonical
  * store of game state) as well as the `useGameState` React hook.
+ *
+ * NOTE on naming:
+ *   - Pure GameState objects expose `isXNext` (Player type).
+ *   - The useGameState hook exposes `activePlayer` (same value, different key).
  */
 
 import { renderHook, act } from '@testing-library/react';
@@ -29,8 +33,8 @@ describe('Scenario 1: initial board is all nulls', () => {
   it('every cell of the initial board is null (pure function)', () => {
     const { board } = createInitialGameState();
     expect(board).toHaveLength(9);
-    board.forEach((cell, i) => {
-      expect(cell).toBeNull(); // cell ${i} should be null
+    board.forEach((cell) => {
+      expect(cell).toBeNull();
     });
   });
 
@@ -52,9 +56,9 @@ describe("Scenario 2: initial active player is 'X'", () => {
     expect(isXNext).toBe('X');
   });
 
-  it("isXNext is 'X' on mount (React hook)", () => {
+  it("activePlayer is 'X' on mount (React hook)", () => {
     const { result } = renderHook(() => useGameState());
-    expect(result.current.isXNext).toBe('X');
+    expect(result.current.activePlayer).toBe('X');
   });
 });
 
@@ -67,11 +71,11 @@ describe('Scenario 3: a valid move places the correct value and switches the act
     const before = createInitialGameState();
     const after = applyMove(before, 4);
 
-    expect(after.board[4]).toBe('X');   // correct value written
-    expect(after.isXNext).toBe('O');    // player switched
+    expect(after.board[4]).toBe('X');  // correct value written
+    expect(after.isXNext).toBe('O');   // player switched
   });
 
-  it("places 'X' in cell 4 and switches active player to 'O' (React hook)", () => {
+  it("places 'X' in cell 4 and switches activePlayer to 'O' (React hook)", () => {
     const { result } = renderHook(() => useGameState());
 
     act(() => {
@@ -79,7 +83,7 @@ describe('Scenario 3: a valid move places the correct value and switches the act
     });
 
     expect(result.current.board[4]).toBe('X');
-    expect(result.current.isXNext).toBe('O');
+    expect(result.current.activePlayer).toBe('O');
   });
 });
 
@@ -92,24 +96,24 @@ describe('Scenario 4: a move on an already-occupied cell is rejected', () => {
     const after1 = applyMove(createInitialGameState(), 4); // X plays cell 4
     const after2 = applyMove(after1, 4);                   // attempt to overwrite cell 4
 
-    expect(after2).toBe(after1);          // same reference — no new state created
-    expect(after2.board[4]).toBe('X');    // value unchanged
-    expect(after2.isXNext).toBe('O');    // active player did NOT flip again
+    expect(after2).toBe(after1);         // same reference — no new state created
+    expect(after2.board[4]).toBe('X');   // value unchanged
+    expect(after2.isXNext).toBe('O');   // active player did NOT flip again
   });
 
-  it('value is unchanged and player does not switch (React hook)', () => {
+  it('value is unchanged and activePlayer does not switch (React hook)', () => {
     const { result } = renderHook(() => useGameState());
 
     act(() => { result.current.makeMove(4); }); // X plays cell 4 → O's turn
     const boardAfterFirst = [...result.current.board];
-    const playerAfterFirst = result.current.isXNext; // 'O'
+    const playerAfterFirst = result.current.activePlayer; // 'O'
 
     act(() => { result.current.makeMove(4); }); // attempt to overwrite
 
-    expect(result.current.board[4]).toBe('X');             // value still X
-    expect(result.current.isXNext).toBe(playerAfterFirst); // still O's turn
+    expect(result.current.board[4]).toBe('X');                      // value still X
+    expect(result.current.activePlayer).toBe(playerAfterFirst);     // still O's turn
     result.current.board.forEach((cell, i) => {
-      expect(cell).toBe(boardAfterFirst[i]);               // rest of board untouched
+      expect(cell).toBe(boardAfterFirst[i]);                        // rest of board untouched
     });
   });
 });
@@ -124,12 +128,12 @@ describe("Scenario 5: a second valid move places 'O' and switches active player 
     const s1 = applyMove(s0, 4); // X plays 4
     const s2 = applyMove(s1, 0); // O plays 0
 
-    expect(s2.board[4]).toBe('X');  // X's move persists
-    expect(s2.board[0]).toBe('O');  // O placed correctly
-    expect(s2.isXNext).toBe('X');   // back to X
+    expect(s2.board[4]).toBe('X'); // X's move persists
+    expect(s2.board[0]).toBe('O'); // O placed correctly
+    expect(s2.isXNext).toBe('X');  // back to X
   });
 
-  it("places 'O' in cell 0 on the second move and returns active player to 'X' (React hook)", () => {
+  it("places 'O' in cell 0 on the second move and activePlayer returns to 'X' (React hook)", () => {
     const { result } = renderHook(() => useGameState());
 
     act(() => { result.current.makeMove(4); }); // X plays 4
@@ -137,6 +141,6 @@ describe("Scenario 5: a second valid move places 'O' and switches active player 
 
     expect(result.current.board[4]).toBe('X');
     expect(result.current.board[0]).toBe('O');
-    expect(result.current.isXNext).toBe('X');
+    expect(result.current.activePlayer).toBe('X');
   });
 });
