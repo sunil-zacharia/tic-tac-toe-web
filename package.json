@@ -10,6 +10,19 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch"
   },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", { "tsconfig": { "jsx": "react-jsx" } }]
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "testMatch": [
+      "**/__tests__/**/*.test.ts?(x)",
+      "**/__tests__/**/*.test.js?(x)"
+    ]
+  },
   "dependencies": {
     "next": "14.2.3",
     "react": "^18.3.1",
