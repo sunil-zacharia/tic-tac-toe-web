@@ -7,7 +7,12 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: ['**/__tests__/**/*.test.ts?(x)', '**/__tests__/**/*.test.js?(x)'],
+  testMatch: [
+    '**/__tests__/**/*.test.ts?(x)',
+    '**/__tests__/**/*.test.js?(x)',
+    '**/store/**/*.test.ts?(x)',
+    '**/store/**/*.test.js?(x)',
+  ],
 };
 
 module.exports = config;
