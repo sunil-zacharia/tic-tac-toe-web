@@ -9,7 +9,6 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFilesAfterFramework: [],
-  setupFilesAfterFramework: [],
   testMatch: ['**/__tests__/**/*.test.ts?(x)'],
 };
 
